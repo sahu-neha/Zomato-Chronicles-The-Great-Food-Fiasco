@@ -21,32 +21,56 @@ def display_menu():
     else:
         menu_data = []
         for dish_id, dish in menu.items():
-            availability = "Available" if dish["availability"] else "Not Available"
+            availability = (
+                colored("Available", "green")
+                if dish["availability"]
+                else colored("Not Available", "red")
+            )
             menu_data.append(
-                [dish_id, dish["name"], dish["price"], availability, dish["stock"]]
+                [
+                    colored(dish_id, "yellow"),
+                    colored(dish["name"], "cyan"),
+                    colored(dish["price"], "blue"),
+                    availability,
+                    colored(dish["stock"], "magenta"),
+                ]
             )
 
         print(
             tabulate(
                 menu_data,
-                headers=["ID", "Name", "Price", "Availability", "Stock"],
+                headers=[
+                    colored("ID", "yellow"),
+                    colored("Name", "cyan"),
+                    colored("Price", "blue"),
+                    colored("Availability", "green"),
+                    colored("Stock", "magenta"),
+                ],
                 tablefmt="grid",
             )
         )
 
-        print("\n*** Orders ***")
+        print(colored("\n*** Orders ***", "yellow"))
         if len(orders) == 0:
             print(colored("No orders placed yet!", "red"))
         else:
             order_data = []
             for order in orders:
                 order_data.append(
-                    [order["order_id"], order["customer_name"], order["order_status"]]
+                    [
+                        colored(order["order_id"], "yellow"),
+                        colored(order["customer_name"], "cyan"),
+                        colored(order["order_status"], "green"),
+                    ]
                 )
             print(
                 tabulate(
                     order_data,
-                    headers=["Order ID", "Customer", "Status"],
+                    headers=[
+                        colored("Order ID", "yellow"),
+                        colored("Customer", "cyan"),
+                        colored("Status", "green"),
+                    ],
                     tablefmt="grid",
                 )
             )
