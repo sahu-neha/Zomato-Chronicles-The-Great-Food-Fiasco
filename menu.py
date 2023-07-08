@@ -1,4 +1,7 @@
 import sys
+from re import match
+from termcolor import colored
+from tabulate import tabulate
 
 # Initial menu data
 menu = {
@@ -12,32 +15,66 @@ orders = []
 
 # Display the menu
 def display_menu():
-    print("Menu:")
-    for dish_id, dish in menu.items():
-        availability = "Available" if dish["availability"] else "Not Available"
+    if len(menu) == 0:
+        print(colored("No Dishes in menu!", "red"))
+        return
+    else:
+        menu_data = []
+        for dish_id, dish in menu.items():
+            availability = "Available" if dish["availability"] else "Not Available"
+            menu_data.append(
+                [dish_id, dish["name"], dish["price"], availability, dish["stock"]]
+            )
+
         print(
-            f"ID: {dish_id}, Name: {dish['name']}, Price: {dish['price']}, Availability: {availability}, Stock: {dish['stock']}"
+            tabulate(
+                menu_data,
+                headers=["ID", "Name", "Price", "Availability", "Stock"],
+                tablefmt="grid",
+            )
         )
+
+        print("\n*** Orders ***")
+        if len(orders) == 0:
+            print(colored("No orders placed yet!", "red"))
+        else:
+            order_data = []
+            for order in orders:
+                order_data.append(
+                    [order["order_id"], order["customer_name"], order["order_status"]]
+                )
+            print(
+                tabulate(
+                    order_data,
+                    headers=["Order ID", "Customer", "Status"],
+                    tablefmt="grid",
+                )
+            )
 
 
 # Add a new dish to the menu
 def add_dish():
-    dish_id = input("Enter dish ID: ")
-    dish_name = input("Enter dish name: ")
-    price = float(input("Enter price: "))
-    stock_count = int(input("Enter stock count: "))
+    id = str(len(menu) + 1)
+    if id not in menu:
+        id = str(len(menu) + 1)
+    else:
+        id = str(len(menu))
+
+    dish_name = input(colored("Enter the Dish name: ", "blue"))
+    price = input(float(colored("Enter the Dish price: ", "blue")))
+    stock_count = int(input(colored("Enter the stock count: ", "blue")))
 
     availability = stock_count > 0  # Set availability based on stock count
 
     dish = {
-        "dish_id": dish_id,
+        "dish_id": id,
         "dish_name": dish_name,
         "price": price,
         "stock_count": stock_count,
         "availability": availability,
     }
 
-    menu[dish_id] = dish
+    menu[id] = dish
 
     if stock_count == 0:
         print(f"{dish_name} added successfully to the menu. Availability: No")
@@ -47,7 +84,7 @@ def add_dish():
 
 # Remove a dish from the menu
 def remove_dish():
-    dish_id = input("Enter the dish ID: ")
+    dish_id = input(colored("Enter the Dish ID: ", "blue"))
 
     if dish_id in menu:
         dish_name = menu[dish_id]["name"]
@@ -59,13 +96,13 @@ def remove_dish():
 
 # Update details of a dish in the menu
 def update_dish():
-    dish_id = input("Enter the dish ID: ")
+    dish_id = input(colored("Enter the Dish ID: ", "blue"))
 
     if dish_id in menu:
         dish_name = menu[dish_id]["name"]
-        dish_price = input("Enter the dish price: ")
-        dish_stock = int(input("Enter the stock quantity: "))
-        availability = dish_stock > 0  # Set availability based on stock count
+        dish_price = input(float(colored("Enter the Dish price: ", "blue")))
+        dish_stock = int(input(colored("Enter the stock count: ", "blue")))
+        dish_availability = dish_stock > 0  # Set availability based on stock count
 
         menu[dish_id] = {
             "name": dish_name,
@@ -74,9 +111,13 @@ def update_dish():
             "stock": dish_stock,
         }
 
-        print(f"Dish '{dish_name}' with ID '{dish_id}' has been updated.")
+        print(
+            colored(
+                f"Dish '{dish_name}' with ID '{dish_id}' has been updated.", "green"
+            )
+        )
     else:
-        print("Invalid dish ID. The dish does not exist in the menu.")
+        print(colored("Invalid dish ID. The dish does not exist in the menu.", "red"))
 
 
 # Take a customer order
@@ -121,15 +162,12 @@ def take_order():
 # Update the status of an order
 def update_order_status():
     order_id = int(input("Enter the order ID: "))
-    new_status = input("Enter the new order status: ")
-
     for order in orders:
         if order["order_id"] == order_id:
-            previous_status = order["order_status"]
+            print(f"Current order status: {order['order_status']}")
+            new_status = input("Enter the new order status: ")
             order["order_status"] = new_status
-            print(
-                f"Order {order_id} status updated from {previous_status} to {new_status}."
-            )
+            print(f"Order {order_id} status updated to {new_status}.")
             return
 
     print(f"Order with ID {order_id} not found.")
